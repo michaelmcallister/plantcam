@@ -52,9 +52,9 @@ const stitchCmdName = "stitch"
 
 var (
 	stitchCmd       = flag.NewFlagSet(stitchCmdName, flag.ExitOnError)
-	stitchWidth     = flag.Int("width", 640, "width to use in the stitched file.")
-	stitchHeight    = flag.Int("height", 480, "height to use in the stitched file.")
-	stitchDirectory = flag.String("directory", "./", "directory full of jpgs to stitch together.")
+	stitchWidth     = stitchCmd.Int("width", 640, "width to use in the stitched file.")
+	stitchHeight    = stitchCmd.Int("height", 480, "height to use in the stitched file.")
+	stitchDirectory = stitchCmd.String("directory", "./", "directory full of jpgs to stitch together.")
 	filename        = stitchCmd.String("filename", "out.gif", ".")
 	fps             = stitchCmd.Int("fps", 60, "frames per second to use in the output.")
 )
@@ -110,7 +110,7 @@ func main() {
 			if !strings.HasSuffix(f.Name(), "jpg") {
 				continue
 			}
-			f, err := os.Open(f.Name())
+			f, err := os.Open(filepath.Join(*stitchDirectory, f.Name()))
 			if err != nil {
 				panic(err)
 			}
