@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"image"
@@ -24,6 +25,9 @@ import (
 )
 
 const usage = `Usage: timelapse [OPTION]`
+
+// ErrUnsupportedFileFormat is returned when
+var ErrUnsupportedFileFormat = errors.New("unsupported file format")
 
 const (
 	dateFormatImg  = "2006-01-02 15:04:05"
@@ -50,12 +54,24 @@ var (
 // 'stitch' flags.
 const stitchCmdName = "stitch"
 
+// StitchFormat represents available file extensions for stitching.
+type StitchFormat string
+
+const (
+	// MJPEG is a file format where each frame is compressed seperately as a JPEG.
+	MJPEG StitchFormat = ".mjpeg"
+	// GIF only supports up to 256 colours.
+	GIF StitchFormat = ".gif"
+)
+
+var allowedStitchFormats = []StitchFormat{MJPEG, GIF}
+
 var (
 	stitchCmd       = flag.NewFlagSet(stitchCmdName, flag.ExitOnError)
 	stitchWidth     = stitchCmd.Int("width", 640, "width to use in the stitched file.")
 	stitchHeight    = stitchCmd.Int("height", 480, "height to use in the stitched file.")
 	stitchDirectory = stitchCmd.String("directory", "./", "directory full of jpgs to stitch together.")
-	filename        = stitchCmd.String("filename", "out.gif", ".")
+	filename        = stitchCmd.String("filename", "out.mjpeg", ".")
 	fps             = stitchCmd.Int("fps", 60, "frames per second to use in the output.")
 )
 
@@ -90,16 +106,34 @@ func init() {
 	}
 }
 
+func parseStitcher() (ImageStitcher, error) {
+	switch ff := StitchFormat(filepath.Ext(*filename)); ff {
+	case MJPEG:
+		w, h, fps := int32(*stitchWidth), int32(*stitchHeight), int32(*fps)
+		return stitchers.NewMJPEGSticher(w, h, fps), nil
+	case GIF:
+		return stitchers.NewGifStitcher(), nil
+	default:
+		log.Printf("Unknown file format: %s", ff)
+		return nil, ErrUnsupportedFileFormat
+	}
+}
+
 func main() {
 	if recordCmd.Parsed() {
 		ticker := time.NewTicker(*timeInterval)
 		c := gocvcapture.New(*deviceID)
 		for range ticker.C {
-			runRecord(c)
+			if err := runRecord(c); err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 	if stitchCmd.Parsed() {
-		c := stitchers.NewMJPEGSticher(int32(*stitchWidth), int32(*stitchHeight), int32(*fps))
+		c, err := parseStitcher()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 		var files []image.Image
 		fs, err := ioutil.ReadDir(*stitchDirectory)
@@ -112,38 +146,28 @@ func main() {
 			}
 			f, err := os.Open(filepath.Join(*stitchDirectory, f.Name()))
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 			image, _, err := image.Decode(f)
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 			files = append(files, image)
 		}
-		stitchFiles(c, files, *filename)
+		if err := c.Stitch(files, *filename); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func runRecord(capturer ImageCapturer) {
+func runRecord(capturer ImageCapturer) error {
 	i, err := capturer.Capture()
 	if err != nil {
-		panic(err)
+		return err
 	}
-
 	labelImage(i, time.Now().Format(dateFormatImg))
-
 	t := fmt.Sprintf("%s.jpg", time.Now().Format(dateFormatFile))
-	err = saveImage(i, *filePath, t)
-	if err != nil {
-		panic(err)
-	}
-}
-
-func stitchFiles(stitcher ImageStitcher, files []image.Image, filename string) {
-	err := stitcher.Stitch(files, filename)
-	if err != nil {
-		panic(err)
-	}
+	return saveImage(i, *filePath, t)
 }
 
 func labelImage(i image.Image, label string) {
