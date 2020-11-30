@@ -1,0 +1,55 @@
+baseURL: "https://plantcam.sknk.ws/"
+languageCode: "en-us"
+title: "PlantCam"
+theme: "hugo-PaperMod"
+Copyright: "Made with &hearts; by Michael McAllister"
+
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+
+minify:
+    disableXML: true
+    minifyOutput: true
+
+params:
+    env: production # to enable google analytics, opengraph, twitter-cards and schema.
+    title: PlantCam
+    description: "Sydney PlantCam"
+    author: Michael McAllister
+
+    ShowReadingTime: false
+    ShowShareButtons: false
+    comments: false
+    defaultTheme: auto
+    disableThemeToggle: false
+    disableSpecial1stPost: true
+
+    assets:
+        favicon: "/plant-logo.png"
+        favicon16x16: "/plant-logo.png"
+        favicon32x32: "/plant-logo.png"
+        apple_touch_icon: "/plant-logo.png"
+        safari_pinned_tab: "/plant-logo.png"
+
+    label:
+        text: "PlantCam"
+        icon: /plant-logo.png
+        iconHeight: 35
+
+    # profile-mode
+    profileMode:
+        enabled: true # needs to be explicitly set
+        title: PlantCam
+        imageUrl: "https://plantcam.sknk.ws/pics/latest-raw.jpg"
+        imageWidth: 640 # custom size
+        imageHeight: 480 # custom size
+        buttons:
+            - name: Timelapse
+              url: timelapse
+
+    socialIcons:
+        - name: github
+          url: "https://github.com/michaelmcallister/plantcam"
+
