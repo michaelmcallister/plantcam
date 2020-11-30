@@ -48,6 +48,8 @@ params:
         buttons:
             - name: Timelapse
               url: timelapse
+            - name: About
+              url: about
 
     socialIcons:
         - name: github
