@@ -34,8 +34,6 @@ var (
 	fps             = flag.Int("fps", 60, "frames per second to use in the output.")
 )
 
-var allowedStitchFormats = []StitchFormat{MJPEG, GIF}
-
 // ImageStitcher defines the contract for taking multiple images and stitching them into a video.
 type ImageStitcher interface {
 	Stitch([]image.Image, string) error
