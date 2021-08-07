@@ -1,7 +1,7 @@
 baseURL: "https://plantcam.sknk.ws/"
 languageCode: "en-us"
 title: "PlantCam"
-theme: "hugo-PaperMod"
+theme: "PaperMod"
 Copyright: "Made with &hearts; by Michael McAllister"
 
 enableRobotsTXT: true
