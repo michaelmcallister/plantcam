@@ -83,7 +83,7 @@ func saveImage(i image.Image, directory, filename string) error {
 	if err := png.Encode(f, i); err != nil {
 		return err
 	}
-	symFile := filepath.Join(filepath.Join(directory), "latest-raw.jpg")
+	symFile := filepath.Join(filepath.Join(directory), "latest-raw.png")
 	// Remove existing symlink if there.
 	if _, err := os.Lstat(symFile); err == nil {
 		os.Remove(symFile)
@@ -97,11 +97,13 @@ func runRecord(capturer ImageCapturer) error {
 		return err
 	}
 	labelImage(i, time.Now().Format(dateFormatImg))
-	t := fmt.Sprintf("%s.jpg", time.Now().Format(dateFormatFile))
+	t := fmt.Sprintf("%s.png", time.Now().Format(dateFormatFile))
 	return saveImage(i, *filePath, t)
 }
 
 func main() {
+	flag.Parse()
+
 	ticker := time.NewTicker(*timeInterval)
 	c := gocvcapture.New(*deviceID)
 	for range ticker.C {
