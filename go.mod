@@ -7,5 +7,5 @@ require (
 	github.com/golang/glog v0.0.0-20210429001901-424d2337a529
 	github.com/icza/mjpeg v0.0.0-20201020132628-7c1e1838a393
 	gocv.io/x/gocv v0.27.0
-	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9
+	golang.org/x/image v0.5.0
 )
